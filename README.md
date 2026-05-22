@@ -10,8 +10,8 @@ A grande inovação da arquitetura é o cruzamento de dados: o sistema define o 
 
 - **Linguagem Principal:** Java 17
 - **Framework:** Spring Boot 3.x
-    - *Spring Security* (Autenticação e controle de acessos)
-    - *Spring Data JPA* (Persistência e comunicação com o banco)
+  - *Spring Security* (Autenticação e controle de acessos)
+  - *Spring Data JPA* (Persistência e comunicação com o banco)
 - **Banco de Dados:** PostgreSQL (Pronto para produção / Render)
 - **Segurança:** JWT (JSON Web Token) por meio da biblioteca `java-jwt` (Auth0)
 - **Comunicação IoT:** Eclipse Paho MQTT Client (Integração com HiveMQ Cloud)
@@ -29,7 +29,7 @@ A grande inovação da arquitetura é o cruzamento de dados: o sistema define o 
 
 ## 🔐 Estrutura de Segurança (JWT)
 
-Todas as rotas sob o prefixo `/api/monitoramento/**`, `/api/planta/**` e `/api/album/**` exigem autenticação.
+Todas as rotas sob o prefixo `/api/monitoramento/**`, `/api/planta/**` e `/api/album/**` exigem autenticação. 
 Para enviar requisições com sucesso, anexe o token recebido no Login ao cabeçalho HTTP de todas as chamadas:
 
 - **Key:** `Authorization`
@@ -67,5 +67,5 @@ Abaixo estão listadas as principais rotas disponíveis no sistema. Para detalhe
 
 ### 1. Clonar o repositório
 ```bash
-git clone [https://github.com/davidsouzaxz/planta-inteligente-backend.git](https://github.com/seu-usuario/planta-inteligente-backend.git)
+git clone https://github.com/DavidSouzaxz/planta-inteligente-backend.git
 cd planta-inteligente-backend
