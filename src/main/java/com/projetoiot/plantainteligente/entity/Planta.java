@@ -12,6 +12,7 @@ public class Planta {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    private Long usuarioId;
     private String nomeUsuario;
     private String nomePlanta;
     private String icone;

@@ -42,6 +42,7 @@ public class MonitoringService {
 
 
         HomeResponseDTO home = new HomeResponseDTO();
+        home.setUsuarioId(planta.getUsuarioId());
         home.setNomeUsuario(planta.getNomeUsuario());
         home.setNomePlanta(planta.getNomePlanta());
         home.setIcone(planta.getIcone());
