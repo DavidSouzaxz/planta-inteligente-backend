@@ -1,22 +1,14 @@
-package com.projetoiot.plantainteligente.entity;
+package com.projetoiot.plantainteligente.dto;
 
-import jakarta.persistence.*;
 import lombok.Data;
 
-@Entity
-@Table(name = "tb_plantas")
 @Data
-public class Planta {
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+public class PlantaResponseDTO {
     private Long id;
-
     private Long usuarioId;
     private String nomePlanta;
     private String icone;
     private String umidadePlanta;
     private String tempPlanta;
     private String solPlanta;
-
 }

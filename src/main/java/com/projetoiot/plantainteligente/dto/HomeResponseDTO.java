@@ -5,7 +5,6 @@ import lombok.Data;
 @Data
 public class HomeResponseDTO {
     private Long usuarioId;
-    private String nomeUsuario;
     private String nomePlanta;
     private String icone;
 

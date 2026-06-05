@@ -9,10 +9,8 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
 import java.util.List;
 
 @RestController
@@ -39,10 +37,11 @@ public class MonitoringController {
         return ResponseEntity.ok(service.obterHistoricoGrafico());
     }
 
-    @GetMapping("/home")
+    @GetMapping("/home/{id}")
     @Operation(summary = "Busca todos os dados tratados para a tela principal da Home (Humor, Alertas e Sensores)")
-    public ResponseEntity<HomeResponseDTO> obterDadosHome() {
-        return ResponseEntity.ok(service.obterDadosHome());
+    public ResponseEntity<HomeResponseDTO> getHomeData(@RequestParam Long plantaId) {
+        HomeResponseDTO dadosHome = service.obterDadosHome(plantaId);
+        return ResponseEntity.ok(dadosHome);
     }
 
     @GetMapping("/eventos")

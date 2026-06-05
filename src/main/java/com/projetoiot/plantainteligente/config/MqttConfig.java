@@ -1,5 +1,7 @@
 package com.projetoiot.plantainteligente.config;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.projetoiot.plantainteligente.dto.PlantaRequestDTO;
+import com.projetoiot.plantainteligente.dto.PlantaResponseDTO;
 import com.projetoiot.plantainteligente.entity.HistoricoEvento;
 import com.projetoiot.plantainteligente.entity.LeituraSensor;
 import com.projetoiot.plantainteligente.entity.Planta;
@@ -68,11 +70,10 @@ public class MqttConfig {
                 String payload = new String(msg.getPayload());
 
                 try {
-
                     LeituraSensor leitura = objectMapper.readValue(payload, LeituraSensor.class);
                     leituraRepository.save(leitura);
 
-
+                    // Busca a entidade Planta diretamente (Corrigido tipo de Optional)
                     Optional<Planta> plantaOpt = plantaRepository.findById(1L);
                     if (plantaOpt.isPresent()) {
                         analisarEGerarEvento(leitura, plantaOpt.get());
@@ -93,30 +94,68 @@ public class MqttConfig {
         String estadoAtual = "OK";
         String descricao = "Estou me sentindo muito bem!";
 
-
-        if (leitura.getUmidadeSolo() < 20) {
+        // ==========================================
+        // 1. ANÁLISE DE UMIDADE DO SOLO (Quiz do Front)
+        // ==========================================
+        if ("Raramente".equalsIgnoreCase(planta.getUmidadePlanta()) && leitura.getUmidadeSolo() > 45) {
+            estadoAtual = "MUITO_MOLHADA";
+            descricao = "Eu prefiro solo mais seco (Raramente), mas minha terra está muito úmida!";
+        } else if ("Frequentemente".equalsIgnoreCase(planta.getUmidadePlanta()) && leitura.getUmidadeSolo() < 40) {
             estadoAtual = "SEDE";
-            descricao = "Fiquei com muita sede! Preciso de água.";
+            descricao = "Eu gosto de regas frequentes. Minha terra está ficando seca!";
+        }
+        // Proteções globais independentes do quiz
+        else if (leitura.getUmidadeSolo() < 20) {
+            estadoAtual = "SEDE";
+            descricao = "Alerta crítico: Minha terra secou completamente!";
         } else if (leitura.getUmidadeSolo() > 85) {
             estadoAtual = "MUITO_MOLHADA";
-            descricao = "Minha terra ficou encharcada.";
-        } else if ("SOMBRA".equalsIgnoreCase(planta.getTipoAmbiente()) && leitura.getLuminosidade() > 1500) {
-            estadoAtual = "MUITO_SOL";
-            descricao = "Levei muito sol direto nas minhas folhas!";
-        } else if ("SOL".equalsIgnoreCase(planta.getTipoAmbiente()) && leitura.getLuminosidade() < 200) {
-            estadoAtual = "MUITO_ESCURO";
-            descricao = "Fiquei muito tempo no escuro absoluto.";
+            descricao = "Alerta crítico: Minhas raízes estão afogadas na água.";
         }
 
+        // ==========================================
+        // 2. ANÁLISE DE LUMINOSIDADE (Quiz do Front)
+        // ==========================================
+        else if ("Pouco Sol".equalsIgnoreCase(planta.getSolPlanta()) && leitura.getLuminosidade() > 800) {
+            estadoAtual = "MUITO_SOL";
+            descricao = "Fui configurada para Pouco Sol, mas a claridade aqui está excessiva!";
+        } else if ("Muito Sol".equalsIgnoreCase(planta.getSolPlanta()) && leitura.getLuminosidade() < 400) {
+            estadoAtual = "MUITO_ESCURO";
+            descricao = "Eu amo Muito Sol, mas este ambiente está escuro demais para mim.";
+        }
 
+        // ==========================================
+        // 3. ANÁLISE DE TEMPERATURA DINÂMICA (Slider do Front)
+        // ==========================================
+        else if (planta.getTempPlanta() != null) {
+            try {
+                // Remove o "°C" ou espaços que venham do slider para isolar o número puro
+                String tempNumerica = planta.getTempPlanta().replaceAll("[^0-9]", "");
+                double temperaturaIdeal = Double.parseDouble(tempNumerica);
+
+                // Se a temperatura real afastar mais de 5°C para cima ou para baixo do valor ideal escolhido
+                if (leitura.getTemperatura() > (temperaturaIdeal + 5.0)) {
+                    estadoAtual = "MUITO_QUENTE";
+                    descricao = "Está muito quente! Passou do meu limite ideal de " + planta.getTempPlanta();
+                } else if (leitura.getTemperatura() < (temperaturaIdeal - 5.0)) {
+                    estadoAtual = "MUITO_FRIO";
+                    descricao = "Estou sentindo frio! A temperatura caiu muito abaixo de " + planta.getTempPlanta();
+                }
+            } catch (Exception e) {
+                System.err.println("⚠️ Falha ao fazer o parse da temperatura do quiz: " + planta.getTempPlanta());
+            }
+        }
+
+        // ==========================================
+        // VERIFICAÇÃO E PERSISTÊNCIA DO EVENTO
+        // ==========================================
         if (!estadoAtual.equals(ultimoEstadoConhecido)) {
             HistoricoEvento novoEvento = new HistoricoEvento();
             novoEvento.setTipoEvento(estadoAtual);
             novoEvento.setDescricao(descricao);
 
             eventoRepository.save(novoEvento);
-            System.out.println("📌 [Novo Evento Registrado]: " + descricao);
-
+            System.out.println("📌 [Novo Evento Registrado com base no Quiz]: " + descricao);
 
             ultimoEstadoConhecido = estadoAtual;
         }
