@@ -34,13 +34,13 @@ public class PlantaController {
 
     @GetMapping("/{id}")
     @Operation(summary = "lista plantas pelo id")
-    public ResponseEntity<List<PlantaResponseDTO>> getOne(@RequestParam Long idPlanta) {
+    public ResponseEntity<List<PlantaResponseDTO>> getOne(@PathVariable Long idPlanta) {
         return ResponseEntity.ok(service.listarPlantasPorUsuario(idPlanta));
     }
 
     @GetMapping("/usuario/{id}")
     @Operation(summary = "lista plantas pelo id do usuario")
-    public ResponseEntity<List<PlantaResponseDTO>> getAllByUser(@RequestParam Long idUser) {
+    public ResponseEntity<List<PlantaResponseDTO>> getAllByUser(@PathVariable Long idUser) {
         return ResponseEntity.ok(service.listarPlantasPorUsuario(idUser));
     }
     @PostMapping("/configurar")
