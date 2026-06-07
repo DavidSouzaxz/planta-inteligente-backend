@@ -34,14 +34,14 @@ public class PlantaController {
 
     @GetMapping("/{id}")
     @Operation(summary = "lista plantas pelo id")
-    public ResponseEntity<List<PlantaResponseDTO>> getOne(@PathVariable Long idPlanta) {
-        return ResponseEntity.ok(service.listarPlantasPorUsuario(idPlanta));
+    public ResponseEntity<List<PlantaResponseDTO>> getOne(@PathVariable Long id) {
+        return ResponseEntity.ok(service.listarPlantasPorUsuario(id));
     }
 
     @GetMapping("/usuario/{id}")
     @Operation(summary = "lista plantas pelo id do usuario")
-    public ResponseEntity<List<PlantaResponseDTO>> getAllByUser(@PathVariable Long idUser) {
-        return ResponseEntity.ok(service.listarPlantasPorUsuario(idUser));
+    public ResponseEntity<List<PlantaResponseDTO>> getAllByUser(@PathVariable Long id) {
+        return ResponseEntity.ok(service.listarPlantasPorUsuario(id));
     }
     @PostMapping("/configurar")
     @Operation(summary = "Salva as respostas do Quiz inicial e cria o perfil da planta")

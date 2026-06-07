@@ -48,18 +48,20 @@ public class AuthController {
         return ResponseEntity.ok("Usuário cadastrado com sucesso!");
     }
 
-    @PostMapping("/login")
-    @Operation(summary = "Valida as credenciais e retorna o Token JWT")
-    public ResponseEntity<?> login(@RequestBody AuthRequestDTO body) {
-        Usuario usuario = repository.findByEmail(body.email())
-                .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
+        @PostMapping("/login")
+        @Operation(summary = "Valida as credenciais e retorna o Token JWT")
+        public ResponseEntity<?> login(@RequestBody AuthRequestDTO body) {
+            Usuario usuario = repository.findByEmail(body.email())
+                    .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
 
 
-        if (passwordEncoder.matches(body.password(), usuario.getPassword())) {
-            String token = tokenService.gerarToken(usuario.getEmail());
-            return ResponseEntity.ok(new LoginResponseDTO(token));
+            if (passwordEncoder.matches(body.password(), usuario.getPassword())) {
+                String token = tokenService.gerarToken(usuario.getEmail());
+                return ResponseEntity.ok(new LoginResponseDTO(token, usuario.getId()));
+            }
+
+
+
+            return ResponseEntity.status(401).body("Erro: Credenciais inválidas!");
         }
-        
-        return ResponseEntity.status(401).body("Erro: Credenciais inválidas!");
-    }
 }
