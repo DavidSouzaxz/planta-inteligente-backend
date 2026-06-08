@@ -39,8 +39,8 @@ public class MonitoringController {
 
     @GetMapping("/home/{id}")
     @Operation(summary = "Busca todos os dados tratados para a tela principal da Home (Humor, Alertas e Sensores)")
-    public ResponseEntity<HomeResponseDTO> getHomeData(@RequestParam Long plantaId) {
-        HomeResponseDTO dadosHome = service.obterDadosHome(plantaId);
+    public ResponseEntity<HomeResponseDTO> getHomeData(@PathVariable Long id) {
+        HomeResponseDTO dadosHome = service.obterDadosHome(id);
         return ResponseEntity.ok(dadosHome);
     }
 

@@ -16,7 +16,7 @@ import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/auth")
-@CrossOrigin(origins = "*")
+@CrossOrigin(origins = {"http://127.0.0.1:5500", "http://localhost:5500", "*"})
 @Tag(name = "Autenticação", description = "Endpoints para cadastro e login de usuários")
 public class AuthController {
 
@@ -56,7 +56,7 @@ public class AuthController {
 
         if (passwordEncoder.matches(body.password(), usuario.getPassword())) {
             String token = tokenService.gerarToken(usuario.getEmail());
-            return ResponseEntity.ok(new LoginResponseDTO(token, usuario.getId()));
+            return ResponseEntity.ok(new LoginResponseDTO(token));
         }
         
         return ResponseEntity.status(401).body("Erro: Credenciais inválidas!");
