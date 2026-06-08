@@ -31,7 +31,7 @@ public class PlantaService {
                 .map(planta -> {;
                     PlantaResponseDTO dto = new PlantaResponseDTO();
                     dto.setId(planta.getId());
-                    dto.setUsuarioId(planta.getUsuarioId());
+                    dto.setUsuarioId(planta.getUsuario().getId());
                     dto.setNomePlanta(planta.getNomePlanta());
                     dto.setIcone(planta.getIcone());
                     dto.setTempPlanta(planta.getTempPlanta());
@@ -50,7 +50,7 @@ public class PlantaService {
         return plantas.stream().map(planta -> {;
                     PlantaResponseDTO dto = new PlantaResponseDTO();
                     dto.setId(planta.getId());
-                    dto.setUsuarioId(planta.getUsuarioId());
+                    dto.setUsuarioId(planta.getUsuario().getId());
                     dto.setNomePlanta(planta.getNomePlanta());
                     dto.setIcone(planta.getIcone());
                     dto.setTempPlanta(planta.getTempPlanta());
@@ -68,7 +68,7 @@ public class PlantaService {
 
         // 2. Cria uma nova planta e vincula ao usuário
         Planta planta = new Planta();
-        planta.setUsuarioId(usuario.getId());
+        planta.setUsuario(usuario);
         planta.setNomePlanta(plantaRequestDTO.getNomePlanta());
         planta.setIcone(plantaRequestDTO.getIcone());
         planta.setTempPlanta(plantaRequestDTO.getTempPlanta());
