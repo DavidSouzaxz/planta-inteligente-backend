@@ -12,7 +12,9 @@ public class Planta {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private Long usuarioId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "usuario_id", nullable = false)
+    private Usuario usuario;
     private String nomePlanta;
     private String icone;
     private String umidadePlanta;

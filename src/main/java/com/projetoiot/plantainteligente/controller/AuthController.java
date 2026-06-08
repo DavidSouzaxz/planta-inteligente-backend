@@ -56,7 +56,7 @@ public class AuthController {
 
         if (passwordEncoder.matches(body.password(), usuario.getPassword())) {
             String token = tokenService.gerarToken(usuario.getEmail());
-            return ResponseEntity.ok(new LoginResponseDTO(token, usuario.getId()));
+            return ResponseEntity.ok(new LoginResponseDTO(token, usuario.getId()    ));
         }
         
         return ResponseEntity.status(401).body("Erro: Credenciais inválidas!");

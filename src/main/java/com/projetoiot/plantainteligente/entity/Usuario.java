@@ -3,6 +3,9 @@ package com.projetoiot.plantainteligente.entity;
 import jakarta.persistence.*;
 import lombok.Data;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Entity
 @Table(name = "tb_usuarios")
 @Data
@@ -19,7 +22,6 @@ public class Usuario {
     private String password;
 
 
-    @OneToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name = "planta_id", referencedColumnName = "id")
-    private Planta planta;
+    @OneToMany(mappedBy = "usuario", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<Planta> plantas = new ArrayList<>();
 }

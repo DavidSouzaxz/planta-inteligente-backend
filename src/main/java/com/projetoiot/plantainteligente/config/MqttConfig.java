@@ -17,6 +17,7 @@ import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -48,7 +49,6 @@ public class MqttConfig {
     private HistoricoEventoRepository eventoRepository;
 
     private final ObjectMapper objectMapper = new ObjectMapper();
-
     private String ultimoEstadoConhecido = "DESCONHECIDO";
 
     @EventListener(ApplicationReadyEvent.class)
@@ -70,13 +70,17 @@ public class MqttConfig {
                 String payload = new String(msg.getPayload());
 
                 try {
+                    // Garante o salvamento bruto independente de qualquer regra do quiz
                     LeituraSensor leitura = objectMapper.readValue(payload, LeituraSensor.class);
                     leituraRepository.save(leitura);
 
-                    // Busca a entidade Planta diretamente (Corrigido tipo de Optional)
-                    Optional<Planta> plantaOpt = plantaRepository.findById(1L);
-                    if (plantaOpt.isPresent()) {
-                        analisarEGerarEvento(leitura, plantaOpt.get());
+                    // AJUSTE: Busca a planta mais recente cadastrada no sistema para avaliar
+                    // (evita travar fixo no ID 1L caso ele tenha sido deletado)
+                    List<Planta> plantas = plantaRepository.findAll();
+                    if (!plantas.isEmpty()) {
+                        // Avalia com base na última planta ativa do banco
+                        Planta plantaAtiva = plantas.get(plantas.size() - 1);
+                        analisarEGerarEvento(leitura, plantaAtiva);
                     }
 
                 } catch (Exception e) {
@@ -94,9 +98,6 @@ public class MqttConfig {
         String estadoAtual = "OK";
         String descricao = "Estou me sentindo muito bem!";
 
-        // ==========================================
-        // 1. ANÁLISE DE UMIDADE DO SOLO (Quiz do Front)
-        // ==========================================
         if ("Raramente".equalsIgnoreCase(planta.getUmidadePlanta()) && leitura.getUmidadeSolo() > 45) {
             estadoAtual = "MUITO_MOLHADA";
             descricao = "Eu prefiro solo mais seco (Raramente), mas minha terra está muito úmida!";
@@ -104,7 +105,6 @@ public class MqttConfig {
             estadoAtual = "SEDE";
             descricao = "Eu gosto de regas frequentes. Minha terra está ficando seca!";
         }
-        // Proteções globais independentes do quiz
         else if (leitura.getUmidadeSolo() < 20) {
             estadoAtual = "SEDE";
             descricao = "Alerta crítico: Minha terra secou completamente!";
@@ -112,10 +112,6 @@ public class MqttConfig {
             estadoAtual = "MUITO_MOLHADA";
             descricao = "Alerta crítico: Minhas raízes estão afogadas na água.";
         }
-
-        // ==========================================
-        // 2. ANÁLISE DE LUMINOSIDADE (Quiz do Front)
-        // ==========================================
         else if ("Pouco Sol".equalsIgnoreCase(planta.getSolPlanta()) && leitura.getLuminosidade() > 800) {
             estadoAtual = "MUITO_SOL";
             descricao = "Fui configurada para Pouco Sol, mas a claridade aqui está excessiva!";
@@ -123,17 +119,11 @@ public class MqttConfig {
             estadoAtual = "MUITO_ESCURO";
             descricao = "Eu amo Muito Sol, mas este ambiente está escuro demais para mim.";
         }
-
-        // ==========================================
-        // 3. ANÁLISE DE TEMPERATURA DINÂMICA (Slider do Front)
-        // ==========================================
         else if (planta.getTempPlanta() != null) {
             try {
-                // Remove o "°C" ou espaços que venham do slider para isolar o número puro
                 String tempNumerica = planta.getTempPlanta().replaceAll("[^0-9]", "");
                 double temperaturaIdeal = Double.parseDouble(tempNumerica);
 
-                // Se a temperatura real afastar mais de 5°C para cima ou para baixo do valor ideal escolhido
                 if (leitura.getTemperatura() > (temperaturaIdeal + 5.0)) {
                     estadoAtual = "MUITO_QUENTE";
                     descricao = "Está muito quente! Passou do meu limite ideal de " + planta.getTempPlanta();
@@ -146,9 +136,6 @@ public class MqttConfig {
             }
         }
 
-        // ==========================================
-        // VERIFICAÇÃO E PERSISTÊNCIA DO EVENTO
-        // ==========================================
         if (!estadoAtual.equals(ultimoEstadoConhecido)) {
             HistoricoEvento novoEvento = new HistoricoEvento();
             novoEvento.setTipoEvento(estadoAtual);
@@ -160,5 +147,4 @@ public class MqttConfig {
             ultimoEstadoConhecido = estadoAtual;
         }
     }
-
 }
